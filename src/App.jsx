@@ -6,7 +6,7 @@ import { useState } from "react";
 import axios from "axios";
 function App() {
   const [cidade, setCidade] = useState("");
-  const [clima, setClima] = useState(null);
+  const [clima, setClima] = useState([]);
   const [previsao, setPrevisao] = useState([]);
   const apiKey = import.meta.env.VITE_API_KEY || "";
 
@@ -15,13 +15,19 @@ function App() {
       const respostaClima = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?q=${cidade}&appid=${apiKey}`
       );
+
+      const respostaPrevisao = await axios.get(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${cidade}&appid=${apiKey}`
+      );
       setClima(respostaClima.data);
+      setPrevisao(respostaPrevisao.data.list.slice(0, 5));
     } catch (error) {
       console.log("Erro ao buscar clima: ", error);
     }
   };
 
-  console.log(clima);
+  console.log(clima.length);
+
   return (
     <>
       <div>
@@ -31,8 +37,9 @@ function App() {
           setCidade={setCidade}
           buscarClima={buscarClima}
         />
-        <ClimaAtual />
-        <Previsao />
+        {Object.values(clima).length > 0 && <ClimaAtual clima={clima} />}
+
+        {previsao.length > 0 && <Previsao previsoes={previsao} />}
       </div>
     </>
   );
