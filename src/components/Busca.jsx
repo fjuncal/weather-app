@@ -1,10 +1,14 @@
 import React from "react";
 
-const Busca = () => {
+const Busca = ({ cidade, setCidade, buscarClima }) => {
   return (
     <div>
-      <input type="text"></input>
-      <button>Buscar</button>
+      <input
+        type="text"
+        value={cidade}
+        onChange={(e) => setCidade(e.target.value)}
+      ></input>
+      <button onClick={buscarClima}>Buscar</button>
     </div>
   );
 };
