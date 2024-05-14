@@ -2,7 +2,7 @@ import Busca from "./components/Busca";
 import ClimaAtual from "./components/ClimaAtual";
 import Previsao from "./components/Previsao";
 import { Titulo } from "./AppStyles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 function App() {
   const [cidade, setCidade] = useState("");
@@ -10,14 +10,29 @@ function App() {
   const [previsao, setPrevisao] = useState([]);
   const apiKey = import.meta.env.VITE_API_KEY || "";
 
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      console.log(position);
+
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      const resposta = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=pt_br`
+      );
+      setCidade(resposta.data.name);
+      setClima(resposta.data);
+    });
+  }, []);
+
   const buscarClima = async () => {
     try {
       const respostaClima = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${cidade}&appid=${apiKey}`
+        `https://api.openweathermap.org/data/2.5/weather?q=${cidade}&appid=${apiKey}&units=metric&lang=pt_br`
       );
 
       const respostaPrevisao = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${cidade}&appid=${apiKey}`
+        `https://api.openweathermap.org/data/2.5/forecast?q=${cidade}&appid=${apiKey}&units=metric&lang=pt_br`
       );
       setClima(respostaClima.data);
       setPrevisao(respostaPrevisao.data.list.slice(0, 5));
@@ -25,8 +40,6 @@ function App() {
       console.log("Erro ao buscar clima: ", error);
     }
   };
-
-  console.log(clima.length);
 
   return (
     <>
